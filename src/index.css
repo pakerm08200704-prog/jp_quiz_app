@@ -1,0 +1,9 @@
+/* src/index.css */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f0f2f5;
+  font-family: sans-serif;
+}
+
+/* 如果你之前有寫自定義的 CSS 可以留在這裡，但千萬不要帶有 <style> 標籤 */

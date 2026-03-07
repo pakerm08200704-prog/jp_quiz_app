@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.app",
+  "appName": "jp_quiz_app",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
