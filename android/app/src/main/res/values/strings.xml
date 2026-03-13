@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">JpQuizApp</string>
-    <string name="title_activity_main">JpQuizApp</string>
-    <string name="package_name">com.myquiz.jp1</string>
-    <string name="custom_url_scheme">com.myquiz.jp1</string>
+    <string name="app_name">大家的日語單字</string>
+    <string name="title_activity_main">大家的日語單字</string>
+    <string name="package_name">com.soratalk.app</string>
+    <string name="custom_url_scheme">com.soratalk.app</string>
 </resources>

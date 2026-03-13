@@ -1,4 +1,4 @@
-package com.myquiz.jp1;
+package com.soratalk.app;
 
 import com.getcapacitor.BridgeActivity;
 

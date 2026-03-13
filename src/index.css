@@ -1,9 +1,13 @@
-/* src/index.css */
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #f0f2f5;
-  font-family: sans-serif;
+@import "tailwindcss";
+
+/* 如果你有自定義字體或動畫，寫在下面 */
+@layer base {
+  body {
+    @apply antialiased text-slate-900;
+  }
 }
 
-/* 如果你之前有寫自定義的 CSS 可以留在這裡，但千萬不要帶有 <style> 標籤 */
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
