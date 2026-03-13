@@ -13,6 +13,40 @@ function App() {
   const [isFinished, setIsFinished] = useState(false);
   const [totalInSession, setTotalInSession] = useState(0);
 
+  // --- 密碼牆邏輯：自動變動日期密碼 ---
+  const [isUnlocked, setIsUnlocked] = useState(false); // 預設鎖定
+  const [inputPassword, setInputPassword] = useState('');
+  const [passError, setPassError] = useState(false);
+
+  // 計算今天的日期作為密碼 (格式如: 0313)
+  const today = new Date();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const date = today.getDate().toString().padStart(2, '0');
+  const CORRECT_PASSWORD = month + date; 
+
+  useEffect(() => {
+    // 檢查「上次解鎖日期」是否為今天
+    const lastUnlockDate = localStorage.getItem('sora_last_unlock_date');
+    if (lastUnlockDate === CORRECT_PASSWORD) {
+      setIsUnlocked(true);
+    } else {
+      setIsUnlocked(false);
+    }
+  }, [CORRECT_PASSWORD]);
+
+  const handleUnlock = () => {
+    if (inputPassword === CORRECT_PASSWORD) {
+      // 儲存當天日期，隔天會過期
+      localStorage.setItem('sora_last_unlock_date', CORRECT_PASSWORD);
+      setIsUnlocked(true);
+      setPassError(false);
+    } else {
+      setPassError(true);
+      setInputPassword('');
+    }
+  };
+  // --- 密碼牆邏輯結束 ---
+
   const initQuiz = (L, wordsToUse = null) => {
     if (!vocabularyData || !vocabularyData[L] || !Array.isArray(vocabularyData[L])) {
       setQuizList([]);
@@ -77,6 +111,49 @@ function App() {
     }
   };
 
+  // --- 如果還沒解鎖，顯示解鎖頁面 ---
+  if (!isUnlocked) {
+    return (
+      <div className="max-w-[450px] mx-auto bg-slate-50 min-h-screen flex items-center justify-center p-6">
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sky-100 w-full text-center">
+          <div className="w-20 h-20 bg-sky-100 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+            <span className="text-4xl">🉐</span>
+          </div>
+          <h2 className="text-2xl font-black text-sky-900 mb-2">SoraTalk 日本語</h2>
+          <p className="text-slate-500 mb-6 text-sm">請輸入 Threads 留言索取的密碼</p>
+          
+          <input 
+            type="text"
+            inputMode="numeric"
+            value={inputPassword}
+            onChange={(e) => setInputPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
+            placeholder="請輸入密碼"
+            className={`w-full p-4 rounded-2xl border ${passError ? 'border-red-400' : 'border-sky-100'} bg-slate-50 mb-4 focus:outline-none focus:ring-2 focus:ring-sky-400 text-center text-lg`}
+          />
+          
+          {passError && <p className="text-red-500 text-xs mb-4">密碼不正確，請回 Threads 查看提示</p>}
+
+          <button 
+            onClick={handleUnlock}
+            className="w-full py-4 rounded-2xl bg-sky-500 text-white text-lg font-bold shadow-lg shadow-sky-100 hover:bg-sky-600 transition-all mb-6"
+          >
+            開啟程式
+          </button>
+
+          <a 
+            href="https://www.threads.net/" 
+            target="_blank" 
+            rel="noreferrer"
+            className="text-sky-400 text-sm font-bold underline"
+          >
+            去 Threads 留言索取密碼
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   if (!vocabularyData) return null;
 
   const currentWord = quizList[currentIdx] || ["", "", ""];
@@ -125,7 +202,6 @@ function App() {
               </div>
             </div>
 
-            {/* 題目卡片 - 已移除 Question 小字 */}
             <div className="bg-sky-100 py-14 px-4 rounded-[2.5rem] text-center border-2 border-sky-200 shadow-sm">
               <h2 className="text-4xl text-sky-900 font-black break-all leading-tight">
                 {currentWord[0]}
@@ -143,8 +219,6 @@ function App() {
             ) : (
               <div className="space-y-6">
                 <p className={`text-center font-black text-2xl animate-bounce ${msg.includes('✅') ? 'text-emerald-500' : 'text-red-500'}`}>{msg}</p>
-                
-                {/* 下一題按鈕/解析卡片 - 已移除 Tap to continue 小字 */}
                 <div onClick={nextStep} className="p-8 bg-sky-500 text-white rounded-[2rem] cursor-pointer text-center shadow-xl shadow-sky-100 transform transition active:scale-95">
                   <div className="text-3xl font-black mb-1 break-all">{currentWord[0]}</div>
                   <div className="text-lg font-medium text-sky-100">
