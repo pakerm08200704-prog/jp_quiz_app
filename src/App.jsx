@@ -13,19 +13,17 @@ function App() {
   const [isFinished, setIsFinished] = useState(false);
   const [totalInSession, setTotalInSession] = useState(0);
 
-  // --- 密碼牆邏輯：自動變動日期密碼 ---
-  const [isUnlocked, setIsUnlocked] = useState(false); // 預設鎖定
+  // --- 密碼牆邏輯 ---
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
   const [passError, setPassError] = useState(false);
 
-  // 計算今天的日期作為密碼 (格式如: 0313)
   const today = new Date();
   const month = (today.getMonth() + 1).toString().padStart(2, '0');
   const date = today.getDate().toString().padStart(2, '0');
   const CORRECT_PASSWORD = month + date; 
 
   useEffect(() => {
-    // 檢查「上次解鎖日期」是否為今天
     const lastUnlockDate = localStorage.getItem('sora_last_unlock_date');
     if (lastUnlockDate === CORRECT_PASSWORD) {
       setIsUnlocked(true);
@@ -36,7 +34,6 @@ function App() {
 
   const handleUnlock = () => {
     if (inputPassword === CORRECT_PASSWORD) {
-      // 儲存當天日期，隔天會過期
       localStorage.setItem('sora_last_unlock_date', CORRECT_PASSWORD);
       setIsUnlocked(true);
       setPassError(false);
@@ -45,8 +42,8 @@ function App() {
       setInputPassword('');
     }
   };
-  // --- 密碼牆邏輯結束 ---
 
+  // --- 測驗邏輯 ---
   const initQuiz = (L, wordsToUse = null) => {
     if (!vocabularyData || !vocabularyData[L] || !Array.isArray(vocabularyData[L])) {
       setQuizList([]);
@@ -111,16 +108,25 @@ function App() {
     }
   };
 
-  // --- 如果還沒解鎖，顯示解鎖頁面 ---
+  // --- 修改點：移除姓名，改為中立的學習筆記聲明 ---
+  const CopyrightFooter = () => (
+    <footer className="mt-8 text-center text-[10px] text-slate-400 px-6 pb-6 leading-relaxed">
+      <p>© 2026 SoraTalk - 日本語學習筆記</p>
+      <p className="mt-1">
+        本程式為個人非營利學習用途。測驗內容參考自《大家的日本語》，相關版權歸原出版社所有。若有侵權請聯繫告知，將立即處理。
+      </p>
+    </footer>
+  );
+
   if (!isUnlocked) {
     return (
-      <div className="max-w-[450px] mx-auto bg-slate-50 min-h-screen flex items-center justify-center p-6">
+      <div className="max-w-[450px] mx-auto bg-slate-50 min-h-screen flex flex-col items-center justify-center p-6">
         <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sky-100 w-full text-center">
           <div className="w-20 h-20 bg-sky-100 rounded-3xl mx-auto mb-6 flex items-center justify-center">
             <span className="text-4xl">🉐</span>
           </div>
           <h2 className="text-2xl font-black text-sky-900 mb-2">SoraTalk 日本語</h2>
-          <p className="text-slate-500 mb-6 text-sm">請輸入 Threads 留言索取的密碼</p>
+          <p className="text-slate-500 mb-6 text-sm">請輸入今日通關密碼即可開始</p>
           
           <input 
             type="text"
@@ -128,28 +134,20 @@ function App() {
             value={inputPassword}
             onChange={(e) => setInputPassword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
-            placeholder="請輸入密碼"
+            placeholder="請輸入 4 位數密碼"
             className={`w-full p-4 rounded-2xl border ${passError ? 'border-red-400' : 'border-sky-100'} bg-slate-50 mb-4 focus:outline-none focus:ring-2 focus:ring-sky-400 text-center text-lg`}
           />
           
-          {passError && <p className="text-red-500 text-xs mb-4">密碼不正確，請回 Threads 查看提示</p>}
+          {passError && <p className="text-red-500 text-xs mb-4">密碼不正確，請確認當天日期（月日）</p>}
 
           <button 
             onClick={handleUnlock}
-            className="w-full py-4 rounded-2xl bg-sky-500 text-white text-lg font-bold shadow-lg shadow-sky-100 hover:bg-sky-600 transition-all mb-6"
+            className="w-full py-4 rounded-2xl bg-sky-500 text-white text-lg font-bold shadow-lg shadow-sky-100 hover:bg-sky-600 transition-all mb-4"
           >
             開啟程式
           </button>
-
-          <a 
-            href="https://www.threads.net/" 
-            target="_blank" 
-            rel="noreferrer"
-            className="text-sky-400 text-sm font-bold underline"
-          >
-            去 Threads 留言索取密碼
-          </a>
         </div>
+        <CopyrightFooter />
       </div>
     );
   }
@@ -177,12 +175,12 @@ function App() {
   };
 
   return (
-    <div className="max-w-[450px] mx-auto bg-slate-50 min-h-screen font-sans">
+    <div className="max-w-[450px] mx-auto bg-slate-50 min-h-screen font-sans flex flex-col">
       <header className="bg-sky-600 text-white py-5 px-6 text-center shadow-md sticky top-0 z-10">
         <h1 className="text-xl font-bold tracking-wider">SoraTalk 日本語</h1>
       </header>
 
-      <main className="p-6">
+      <main className="p-6 flex-grow">
         <div className="flex gap-3 mb-8">
           <select value={lesson} onChange={(e) => handleLessonChange(Number(e.target.value))} className="flex-[2] p-3 rounded-xl border border-sky-100 bg-white shadow-sm focus:ring-2 focus:ring-sky-400 focus:outline-none font-medium text-slate-700">
             {Object.keys(vocabularyData).map(L => <option key={L} value={L}>第 {L} 課 ({vocabularyData[L].length} 題)</option>)}
@@ -230,6 +228,7 @@ function App() {
           </div>
         )}
       </main>
+      <CopyrightFooter />
     </div>
   );
 }
